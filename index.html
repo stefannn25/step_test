@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="StepSync — Real-time stepping exercise monitor powered by piezoelectric sensors and ESP32. Track your steps, heart rate, weight, and BMI." />
+  <title>Step Test Exercise Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <div class="bg-decoration">
+    <div class="leaf leaf-1"></div>
+    <div class="leaf leaf-2"></div>
+    <div class="leaf leaf-3"></div>
+    <div class="leaf leaf-4"></div>
+    <div class="leaf leaf-5"></div>
+    <div class="floating-circle circle-1"></div>
+    <div class="floating-circle circle-2"></div>
+    <div class="floating-circle circle-3"></div>
+  </div>
+
+  <div class="app-container">
+
+    <header class="app-header" id="app-header">
+      <div class="header-content">
+        <div class="logo-group">
+          <div class="logo-icon">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 4C14 4 10 8 10 14C10 20 16 28 20 36C24 28 30 20 30 14C30 8 26 4 20 4Z" fill="currentColor"
+                opacity="0.3" />
+              <path d="M20 8C16 8 13 11 13 15C13 19 17 25 20 30C23 25 27 19 27 15C27 11 24 8 20 8Z" fill="currentColor"
+                opacity="0.6" />
+              <path d="M20 12C18 12 16 14 16 16C16 18 18 22 20 24C22 22 24 18 24 16C24 14 22 12 20 12Z"
+                fill="currentColor" />
+            </svg>
+          </div>
+          <div class="logo-text">
+            <h1>3-Minute Step Test</h1>
+            <span class="subtitle">PE Stepping Exercise Monitor</span>
+          </div>
+        </div>
+        <div class="connection-status" id="connection-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Connecting…</span>
+        </div>
+      </div>
+    </header>
+
+    <nav class="view-tabs" id="view-tabs">
+      <button class="tab-btn active" id="tab-test" aria-label="Switch to Test view">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path
+            d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.03 7.03 0 0018.49 13v-2a4.97 4.97 0 01-3.6-1.9l-1-1.3c-.6-.8-1.5-1.3-2.5-1.3-.3 0-.5.1-.8.1l-5.2 2.3v4.8h2V11l1.8-.7-1.6 8.1-4.9-1-.4 2 7 1.4z" />
+        </svg>
+        <span>Test</span>
+      </button>
+      <button class="tab-btn" id="tab-list" aria-label="Switch to List Dashboard view">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+        </svg>
+        <span>List Dashboard</span>
+      </button>
+    </nav>
+
+
+    <main class="dashboard view-test" id="view-test">
+      <!----------------- 3-minute timer card ----------------->
+      <section class="card card-timer" id="card-timer">
+        <div class="card-header">
+          <div class="card-icon icon-timer">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0012 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
+            </svg>
+          </div>
+          <span class="card-label">Step Test Timer</span>
+        </div>
+        <div class="timer-body">
+          <div class="timer-ring-container">
+            <svg class="timer-ring" viewBox="0 0 160 160">
+              <circle class="timer-ring-bg" cx="80" cy="80" r="70" />
+              <circle class="timer-ring-progress" id="timer-ring-progress" cx="80" cy="80" r="70" />
+            </svg>
+            <div class="timer-display">
+              <span class="timer-value" id="timer-value">3:00</span>
+              <span class="timer-label" id="timer-label">TAP TO START</span>
+            </div>
+          </div>
+          <button class="btn-timer" id="btn-timer" aria-label="Start 3-minute step test timer">
+            <svg class="btn-timer-icon play-icon" id="timer-play-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg class="btn-timer-icon pause-icon hidden" id="timer-pause-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+            <span id="btn-timer-text">Start Test</span>
+          </button>
+          <button class="btn-timer-reset hidden" id="btn-timer-reset" aria-label="Reset timer">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+            </svg>
+            Reset
+          </button>
+        </div>
+      </section>
+
+      <section class="card card-steps" id="card-steps">
+        <div class="card-header">
+          <div class="card-icon icon-steps">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M4 16L8 12L12 14L16 10L20 12" />
+              <path d="M4 20L8 16L12 18L16 14L20 16" />
+            </svg>
+          </div>
+          <span class="card-label">Total Steps</span>
+        </div>
+        <div class="card-value-group">
+          <span class="card-value" id="steps-value">0</span>
+          <span class="card-unit">steps</span>
+        </div>
+        <div class="steps-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="steps-progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="metrics-grid">
+        <!----------------- heart rate card ----------------->
+        <section class="card card-metric" id="card-heartrate">
+          <div class="card-header">
+            <div class="card-icon icon-heart">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+            <span class="card-label">Heart Rate</span>
+          </div>
+          <div class="card-value-group">
+            <span class="card-value" id="heartrate-value">--</span>
+            <span class="card-unit">bpm</span>
+          </div>
+          <div class="heartrate-wave" id="heartrate-wave">
+            <svg viewBox="0 0 200 40" preserveAspectRatio="none">
+              <polyline id="ecg-line" fill="none" stroke="currentColor" stroke-width="2" points="" />
+            </svg>
+          </div>
+        </section>
+
+        <!----------------- weight card ----------------->
+        <section class="card card-metric" id="card-weight">
+          <div class="card-header">
+            <div class="card-icon icon-weight">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 3a4 4 0 014 4c0 .73-.2 1.41-.54 2H18a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2v-9a2 2 0 012-2h2.54A3.96 3.96 0 018 7a4 4 0 014-4zm0 2a2 2 0 100 4 2 2 0 000-4z" />
+              </svg>
+            </div>
+            <span class="card-label">Weight</span>
+          </div>
+          <div class="card-value-group">
+            <span class="card-value" id="weight-value">--</span>
+            <span class="card-unit">kg</span>
+          </div>
+          <div class="sensor-badge">
+            <span class="sensor-dot"></span>
+            Sensor Active
+          </div>
+        </section>
+      </div>
+
+      <!----------------- height & BMI section ----------------->
+      <div class="bmi-section">
+        <!----------------- height input card ----------------->
+        <section class="card card-input" id="card-height">
+          <div class="card-header">
+            <div class="card-icon icon-height">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 2v20H5V2h2zm5 0l4 4h-3v12h3l-4 4-4-4h3V6H8l4-4z" />
+              </svg>
+            </div>
+            <span class="card-label">Enter Height</span>
+          </div>
+          <div class="input-group">
+            <div class="input-wrapper">
+              <input type="number" id="height-input" class="height-input" placeholder="0.00" min="0" max="300"
+                step="0.01" aria-label="Enter your height in centimeters" />
+              <span class="input-unit">cm</span>
+            </div>
+            <button class="btn-calculate" id="btn-calculate" aria-label="Calculate BMI">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Calculate
+            </button>
+          </div>
+        </section>
+
+        <!----------------- BMI card ----------------->
+        <section class="card card-bmi" id="card-bmi">
+          <div class="card-header">
+            <div class="card-icon icon-bmi">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            </div>
+            <span class="card-label">BMI</span>
+          </div>
+          <div class="card-value-group">
+            <span class="card-value bmi-value" id="bmi-value">--</span>
+          </div>
+          <div class="bmi-category" id="bmi-category">
+            <span class="bmi-tag" id="bmi-tag">Enter height to calculate</span>
+          </div>
+          <div class="bmi-scale">
+            <div class="scale-bar">
+              <div class="scale-segment underweight"></div>
+              <div class="scale-segment normal"></div>
+              <div class="scale-segment overweight"></div>
+              <div class="scale-segment obese"></div>
+            </div>
+            <div class="scale-indicator" id="bmi-indicator" style="left: 0%; opacity: 0;"></div>
+            <div class="scale-labels">
+              <span>Underweight</span>
+              <span>Normal</span>
+              <span>Overweight</span>
+              <span>Obese</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!----------------- finish test button ----------------->
+      <button class="btn-finish-test" id="btn-finish-test">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4" />
+          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+        </svg>
+        Finish Test &amp; Save Result
+      </button>
+
+    </main>
+
+    <!----------------- LIST DASHBOARD VIEW ----------------->
+    <section class="view-list hidden" id="view-list">
+      <div class="list-header">
+        <h2 class="list-title">Student Results</h2>
+        <span class="list-count" id="list-count">0 students</span>
+      </div>
+
+      <div class="list-empty" id="list-empty">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+        </svg>
+        <p>No test results yet</p>
+        <span>Complete a step test to add the first result</span>
+      </div>
+
+      <div class="results-list" id="results-list">
+        <!-- dynamically populated -->
+      </div>
+    </section>
+
+    <!----------------- student detail modal ----------------->
+    <div class="modal-overlay hidden" id="modal-overlay">
+      <div class="modal" id="modal-detail">
+        <button class="modal-close" id="modal-close" aria-label="Close detail view">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+        <div class="modal-header">
+          <div class="modal-avatar" id="modal-avatar">S</div>
+          <div>
+            <h3 class="modal-name" id="modal-name">Student Name</h3>
+            <span class="modal-date" id="modal-date">--</span>
+          </div>
+        </div>
+        <div class="modal-grid" id="modal-grid">
+          <!-- populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <p>Powered by <strong>ESP32</strong> &amp; Piezoelectric Sensors</p>
+      <p class="footer-sub">Isabela State University - Cauayan Campus</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
