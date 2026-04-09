@@ -553,7 +553,7 @@
           if (data.weight !== undefined) updateWeight(data.weight);
           if (state.height > 0) updateBMI();
         } catch (e) {
-          console.warn('[StepSync] Invalid message:', event.data);
+          console.warn('Invalid message:', event.data);
         }
       };
 
@@ -566,7 +566,7 @@
         setTimeout(connectWebSocket, 3000);
       };
     } catch (e) {
-      console.warn('[StepSync] WebSocket failed:', e);
+      console.warn('WebSocket failed:', e);
       updateConnectionStatus(false, 'Failed');
       setTimeout(connectWebSocket, 5000);
     }
